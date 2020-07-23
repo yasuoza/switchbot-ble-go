@@ -1,4 +1,4 @@
-name: CI workflow for siwtchbot Project
+name: test
 on:
   push
 
