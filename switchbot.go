@@ -2,12 +2,12 @@ package switchbot
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/JuulLabs-OSS/ble"
 	"github.com/JuulLabs-OSS/ble/linux"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -16,13 +16,12 @@ var (
 )
 
 func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
-	addrs := []string{}
-
 	err := setupDefaultDevice()
 	if err != nil {
-		return addrs, errors.Wrap(err, "Could not initialize a device")
+		return []string{}, fmt.Errorf("Cound not initialize a device: %w", err)
 	}
 
+	addrs := []string{}
 	ctx = ble.WithSigHandler(context.WithTimeout(ctx, timeout))
 	err = ble.Scan(ctx, false, func(a ble.Advertisement) {
 		if contains(a.Services(), serviceUUID) {
@@ -34,7 +33,7 @@ func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
 
 func Connect(ctx context.Context, addr string, timeout time.Duration) (*Bot, error) {
 	if err := setupDefaultDevice(); err != nil {
-		return nil, errors.Wrap(err, "Could not initialize a device")
+		return nil, fmt.Errorf("Cound not initialize a device: %w", err)
 	}
 
 	ctx = ble.WithSigHandler(context.WithTimeout(ctx, timeout))
@@ -71,7 +70,7 @@ func contains(arr []ble.UUID, uuid ble.UUID) bool {
 }
 
 func scanError(err error) error {
-	switch errors.Cause(err) {
+	switch err {
 	case nil, context.DeadlineExceeded, context.Canceled:
 		return nil
 	default:
