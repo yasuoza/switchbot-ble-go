@@ -2,7 +2,6 @@ package switchbot
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -13,26 +12,28 @@ import (
 
 var (
 	serviceUUID = ble.MustParse("cba20d00224d11e69fb80002a5d5c51b")
+	bleDevice   ble.Device
 )
 
-func Scan(ctx context.Context, timeout time.Duration) error {
-	err := setupBleDevice()
+func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
+	addrs := []string{}
+
+	err := setupDefaultDevice()
 	if err != nil {
-		return errors.Wrap(err, "Could not initialize a device")
+		return addrs, errors.Wrap(err, "Could not initialize a device")
 	}
 
 	ctx = ble.WithSigHandler(context.WithTimeout(ctx, timeout))
 	err = ble.Scan(ctx, false, func(a ble.Advertisement) {
 		if contains(a.Services(), serviceUUID) {
-			fmt.Printf("Found Switch Bot. MAC Address: %s\n", a.Addr().String())
+			addrs = append(addrs, a.Addr().String())
 		}
 	}, nil)
-	return handleErr(err)
+	return addrs, scanError(err)
 }
 
 func Connect(ctx context.Context, addr string, timeout time.Duration) (*Bot, error) {
-	err := setupBleDevice()
-	if err != nil {
+	if err := setupDefaultDevice(); err != nil {
 		return nil, errors.Wrap(err, "Could not initialize a device")
 	}
 
@@ -48,12 +49,15 @@ func Connect(ctx context.Context, addr string, timeout time.Duration) (*Bot, err
 	return bot, nil
 }
 
-func setupBleDevice() error {
-	d, err := linux.NewDevice()
-	if err != nil {
-		return errors.Wrap(err, "Could not initialize a device")
+func setupDefaultDevice() error {
+	if bleDevice == nil {
+		d, err := linux.NewDevice()
+		if err != nil {
+			return err
+		}
+		bleDevice = d
 	}
-	ble.SetDefaultDevice(d)
+	ble.SetDefaultDevice(bleDevice)
 	return nil
 }
 
@@ -66,7 +70,7 @@ func contains(arr []ble.UUID, uuid ble.UUID) bool {
 	return false
 }
 
-func handleErr(err error) error {
+func scanError(err error) error {
 	switch errors.Cause(err) {
 	case nil, context.DeadlineExceeded, context.Canceled:
 		return nil
