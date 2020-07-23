@@ -1,6 +1,7 @@
 name: test
 on:
-  push
+  - push
+  - pull_request
 
 jobs:
   test:
@@ -25,3 +26,20 @@ jobs:
 
       - name: go test
         run: go test -v
+        
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: go-version-${{ matrix.node }}
+          parallel: true
+          
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
