@@ -22,19 +22,19 @@ type Bot struct {
 	cl ble.Client
 }
 
-// Trigger Press function.
+// Press triggers press function for the SwitchBot.
 // SwitchBot must be set to press mode.
 func (b *Bot) Press() error {
 	return b.trigger(press)
 }
 
-// Trigger On function.
+// On triggers on function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
 func (b *Bot) On() error {
 	return b.trigger(on)
 }
 
-// Trigger Off function.
+// Off triggers off function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
 func (b *Bot) Off() error {
 	return b.trigger(off)
