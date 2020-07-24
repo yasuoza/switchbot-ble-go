@@ -7,11 +7,11 @@ on:
 
 jobs:
   test:
-    name: Test with go-version: ${{ matrix.go }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         go: [1.13, 1.14]
+    name: Test with go-version: ${{ matrix.go }}
     steps:
       - uses: actions/setup-go@v2.1.1
         with:
