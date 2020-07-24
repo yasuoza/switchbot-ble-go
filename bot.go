@@ -21,10 +21,6 @@ type Bot struct {
 	cl ble.Client
 }
 
-func NewBot(Addr string) *Bot {
-	return &Bot{Addr: Addr}
-}
-
 func (b *Bot) Press() error {
 	return b.trigger(press)
 }

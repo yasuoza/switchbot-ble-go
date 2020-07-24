@@ -17,14 +17,6 @@ func (p *MockBleClient) WriteCharacteristic(c *ble.Characteristic, v []byte, noR
 	return p.writeCharacteristics(c, v, noRsp)
 }
 
-func Test_NewBot(t *testing.T) {
-	bot := NewBot("ADDR")
-
-	if bot.Addr != "ADDR" {
-		t.Fatal("Incorrect addr")
-	}
-}
-
 func Test_Press(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
@@ -40,7 +32,7 @@ func Test_Press(t *testing.T) {
 		return nil
 	}
 
-	bot := NewBot("ADDR")
+	bot := &Bot{"ADDR", cl}
 	bot.cl = cl
 	if err := bot.Press(); err != nil {
 		t.Fatal("test failed")
@@ -62,7 +54,7 @@ func Test_On(t *testing.T) {
 		return nil
 	}
 
-	bot := NewBot("ADDR")
+	bot := &Bot{"ADDR", cl}
 	bot.cl = cl
 	if err := bot.On(); err != nil {
 		t.Fatal("test failed")
@@ -84,8 +76,7 @@ func Test_Off(t *testing.T) {
 		return nil
 	}
 
-	bot := NewBot("ADDR")
-	bot.cl = cl
+	bot := &Bot{"ADDR", cl}
 	if err := bot.Off(); err != nil {
 		t.Fatal("test failed")
 	}
