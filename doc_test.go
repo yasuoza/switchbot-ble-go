@@ -1,11 +1,15 @@
-# SwitchBot Client for Go  ![test](https://github.com/yasuoza/switchbot/workflows/test/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/yasuoza/switchbot)](https://goreportcard.com/report/github.com/yasuoza/switchbot) [![Coverage Status](https://coveralls.io/repos/github/yasuoza/switchbot/badge.svg?branch=master)](https://coveralls.io/github/yasuoza/switchbot?branch=master)
+package switchbot_test
 
-Unofficial [SwitchBot](https://www.switch-bot.com/) client for Go.
+import (
+	"context"
+	"log"
+	"os"
+	"time"
 
-## Example
+	"github.com/yasuoza/switchbot"
+)
 
-```go
-func main() {
+func Example_scanAndPress() {
 	ctx := context.Background()
 	timeout := 5 * time.Second
 
@@ -33,4 +37,3 @@ func main() {
 	log.Printf("Connected to SwitchBot %s. Trigger Press\n", addr)
 	bot.Press()
 }
-```

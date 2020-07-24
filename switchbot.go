@@ -15,6 +15,9 @@ var (
 	bleDevice   ble.Device
 )
 
+// Scan scans nearby SwitchBots.
+// If some SwitchBots are found, it returns slice of their MAC addresses.
+// If any SwitchBots are not found, it returns empty slice and error is nil for this case.
 func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
 	err := setupDefaultDevice()
 	if err != nil {
@@ -31,6 +34,8 @@ func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
 	return addrs, scanError(err)
 }
 
+// Connect connects to SwitchBot filter by addr argument.
+// If connection failed within timeout, Connect returns error.
 func Connect(ctx context.Context, addr string, timeout time.Duration) (*Bot, error) {
 	if err := setupDefaultDevice(); err != nil {
 		return nil, fmt.Errorf("Cound not initialize a device: %w", err)

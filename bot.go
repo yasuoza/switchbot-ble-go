@@ -15,20 +15,27 @@ var (
 	off   = []byte{0x57, 0x01, 0x02}
 )
 
+// Bot represents SwitchBot device.
 type Bot struct {
 	Addr string
 
 	cl ble.Client
 }
 
+// Trigger Press function.
+// SwitchBot must be set to press mode.
 func (b *Bot) Press() error {
 	return b.trigger(press)
 }
 
+// Trigger On function.
+// SwitchBot must be set to On/Off mode.
 func (b *Bot) On() error {
 	return b.trigger(on)
 }
 
+// Trigger Off function.
+// SwitchBot must be set to On/Off mode.
 func (b *Bot) Off() error {
 	return b.trigger(off)
 }
