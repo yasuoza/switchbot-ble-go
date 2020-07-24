@@ -25,15 +25,21 @@ jobs:
         run: go vet ./...
 
       - name: go test
-        run: go test -v
-        
+        run: go test -v -covermode=count -coverprofile=coverage.out
+
+      - name: Convert coverage to lcov
+        uses: jandelgado/gcov2lcov-action@v1.0.2
+        with:
+          infile: coverage.out
+          outfile: coverage.lcov
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
+          path-to-lcov: coverage.lcov
           flag-name: go-version-${{ matrix.go }}
           parallel: true
-          
+
   finish:
     needs: test
     runs-on: ubuntu-latest
