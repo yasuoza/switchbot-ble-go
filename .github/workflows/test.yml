@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Test with go-version: ${{ matrix.go }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,7 +35,7 @@ jobs:
           infile: coverage.out
           outfile: coverage.lcov
       - name: Coveralls Parallel
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v1.1.1
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: coverage.lcov
