@@ -2,7 +2,9 @@ package switchbot
 
 import (
 	"encoding/binary"
+	"errors"
 	"hash/crc32"
+	"strings"
 
 	"github.com/JuulLabs-OSS/ble"
 )
@@ -18,6 +20,14 @@ type Bot struct {
 
 	cl ble.Client
 	pw []byte
+
+	subsque chan []byte
+}
+
+func NewBot(addr string) *Bot {
+	b := &Bot{Addr: strings.ToLower(addr)}
+	b.subsque = make(chan []byte)
+	return b
 }
 
 // SetPSetPSetPassword sets SwitchBot's password.
@@ -28,6 +38,26 @@ func (b *Bot) SetPassword(pw string) {
 	bs := make([]byte, 4)
 	binary.BigEndian.PutUint32(bs[0:], crc)
 	b.pw = bs
+}
+
+// Subscribe subscribes to bot and waiting notification from SwitchBot.
+func (b *Bot) Subscribe() error {
+	p, err := b.cl.DiscoverProfile(true)
+	if err != nil {
+		return err
+	}
+	c := p.FindCharacteristic(
+		ble.NewCharacteristic(ble.MustParse("cba20003-224d-11e6-9fb8-0002a5d5c51b")),
+	)
+	if c == nil {
+		return errors.New("Could not subscribe to SwitchBot")
+	}
+	if err := b.cl.Subscribe(c, false, func(req []byte) {
+		b.subsque <- req
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Press triggers press function for the SwitchBot.
@@ -64,6 +94,24 @@ func (b *Bot) Off() error {
 		cmd = []byte{0x57, 0x01, 0x02}
 	}
 	return b.trigger(cmd)
+}
+
+// GetSettings retrieves bot's settings.
+func (b *Bot) GetSettings() ([]byte, error) {
+	if err := b.Subscribe(); err != nil {
+		return nil, err
+	}
+
+	var cmd []byte
+	if len(b.pw) != 0 {
+		cmd = append([]byte{0x57, 0x12}, b.pw...)
+	} else {
+		cmd = []byte{0x57, 0x02}
+	}
+	if err := b.trigger(cmd); err != nil {
+		return nil, err
+	}
+	return <-b.subsque, nil
 }
 
 func (b *Bot) encrypted() bool {

@@ -49,7 +49,8 @@ func Connect(ctx context.Context, addr string, timeout time.Duration) (*Bot, err
 	if err != nil {
 		return nil, err
 	}
-	bot := &Bot{Addr: addr, cl: cl}
+	bot := NewBot(addr)
+	bot.cl = cl
 	return bot, nil
 }
 
