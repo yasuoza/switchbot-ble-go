@@ -1,6 +1,9 @@
 package switchbot
 
 import (
+	"encoding/binary"
+	"hash/crc32"
+
 	"github.com/JuulLabs-OSS/ble"
 )
 
@@ -9,41 +12,68 @@ const (
 	handle          = 0x16
 )
 
-var (
-	press = []byte{0x57, 0x01, 0x00}
-	on    = []byte{0x57, 0x01, 0x01}
-	off   = []byte{0x57, 0x01, 0x02}
-)
-
 // Bot represents SwitchBot device.
 type Bot struct {
 	Addr string
 
 	cl ble.Client
+	pw []byte
 }
 
 // Press triggers press function for the SwitchBot.
 // SwitchBot must be set to press mode.
 func (b *Bot) Press() error {
-	return b.trigger(press)
+	var cmd []byte
+	if b.encrypted() {
+		cmd = append([]byte{0x57, 0x11}, b.pw...)
+	} else {
+		cmd = []byte{0x57, 0x01}
+	}
+	return b.trigger(cmd)
 }
 
 // On triggers on function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
 func (b *Bot) On() error {
-	return b.trigger(on)
+	var cmd []byte
+	if b.encrypted() {
+		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x01}...)
+	} else {
+		cmd = []byte{0x57, 0x01, 0x01}
+	}
+	return b.trigger(cmd)
 }
 
 // Off triggers off function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
 func (b *Bot) Off() error {
-	return b.trigger(off)
+	var cmd []byte
+	if b.encrypted() {
+		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x02}...)
+	} else {
+		cmd = []byte{0x57, 0x01, 0x02}
+	}
+	return b.trigger(cmd)
 }
 
-func (b *Bot) trigger(op []byte) error {
+// SetPSetPSetPassword sets SwitchBot's password.
+// If SwitchBot is configured to use password authentication,
+// you need to call SetPassword before calling Press/On/Off function.
+func (b *Bot) SetPassword(pw string) {
+	crc := crc32.ChecksumIEEE([]byte(pw))
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs[0:], crc)
+	b.pw = bs
+}
+
+func (b *Bot) encrypted() bool {
+	return len(b.pw) != 0
+}
+
+func (b *Bot) trigger(cmd []byte) error {
 	c := ble.NewCharacteristic(ble.MustParse(characteristics))
 	c.ValueHandle = handle
-	if err := b.cl.WriteCharacteristic(c, op, false); err != nil {
+	if err := b.cl.WriteCharacteristic(c, cmd, false); err != nil {
 		return err
 	}
 	return nil

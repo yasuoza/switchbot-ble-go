@@ -1,6 +1,7 @@
 package switchbot
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -17,13 +18,23 @@ func (p *MockBleClient) WriteCharacteristic(c *ble.Characteristic, v []byte, noR
 	return p.writeCharacteristics(c, v, noRsp)
 }
 
+func Test_SetPassword(t *testing.T) {
+	cl := &MockBleClient{}
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.SetPassword("password")
+	psw := fmt.Sprintf("% x", bot.pw)
+	if psw != "35 c2 46 d5" {
+		t.Fatal("Incorrect password")
+	}
+}
+
 func Test_Press(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
 			t.Fatal("Incorrect VHandle")
 		}
-		if !reflect.DeepEqual(v, []byte{0x57, 0x01, 0x00}) {
+		if !reflect.DeepEqual(v, []byte{0x57, 0x01}) {
 			t.Fatal("Incorrect value")
 		}
 		if noRsp != false {
@@ -32,7 +43,30 @@ func Test_Press(t *testing.T) {
 		return nil
 	}
 
-	bot := &Bot{"ADDR", cl}
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.cl = cl
+	if err := bot.Press(); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func Test_Press_With_Password(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		if c.ValueHandle != 0x16 {
+			t.Fatal("Incorrect VHandle")
+		}
+		if !reflect.DeepEqual(v, append([]byte{0x57, 0x11}, []byte{0x35, 0xc2, 0x46, 0xd5}...)) {
+			t.Fatal("Incorrect value")
+		}
+		if noRsp != false {
+			t.Fatal("Incorrect noRsp")
+		}
+		return nil
+	}
+
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.SetPassword("password")
 	bot.cl = cl
 	if err := bot.Press(); err != nil {
 		t.Fatal("test failed")
@@ -54,7 +88,31 @@ func Test_On(t *testing.T) {
 		return nil
 	}
 
-	bot := &Bot{"ADDR", cl}
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.cl = cl
+	if err := bot.On(); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func Test_On_With_Password(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		if c.ValueHandle != 0x16 {
+			t.Fatal("Incorrect VHandle")
+		}
+		cmd := append(append([]byte{0x57, 0x11}, []byte{0x35, 0xc2, 0x46, 0xd5}...), []byte{0x01}...)
+		if !reflect.DeepEqual(v, cmd) {
+			t.Fatal("Incorrect value")
+		}
+		if noRsp != false {
+			t.Fatal("Incorrect noRsp")
+		}
+		return nil
+	}
+
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.SetPassword("password")
 	bot.cl = cl
 	if err := bot.On(); err != nil {
 		t.Fatal("test failed")
@@ -76,7 +134,31 @@ func Test_Off(t *testing.T) {
 		return nil
 	}
 
-	bot := &Bot{"ADDR", cl}
+	bot := &Bot{"ADDR", cl, []byte{}}
+	if err := bot.Off(); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func Test_Off_With_Password(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		if c.ValueHandle != 0x16 {
+			t.Fatal("Incorrect VHandle")
+		}
+		cmd := append(append([]byte{0x57, 0x11}, []byte{0x35, 0xc2, 0x46, 0xd5}...), []byte{0x02}...)
+		if !reflect.DeepEqual(v, cmd) {
+			t.Fatal("Incorrect value")
+		}
+		if noRsp != false {
+			t.Fatal("Incorrect noRsp")
+		}
+		return nil
+	}
+
+	bot := &Bot{"ADDR", cl, []byte{}}
+	bot.SetPassword("password")
+	bot.cl = cl
 	if err := bot.Off(); err != nil {
 		t.Fatal("test failed")
 	}
