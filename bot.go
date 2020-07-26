@@ -20,6 +20,16 @@ type Bot struct {
 	pw []byte
 }
 
+// SetPSetPSetPassword sets SwitchBot's password.
+// If SwitchBot is configured to use password authentication,
+// you need to call SetPassword before calling Press/On/Off function.
+func (b *Bot) SetPassword(pw string) {
+	crc := crc32.ChecksumIEEE([]byte(pw))
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs[0:], crc)
+	b.pw = bs
+}
+
 // Press triggers press function for the SwitchBot.
 // SwitchBot must be set to press mode.
 func (b *Bot) Press() error {
@@ -54,16 +64,6 @@ func (b *Bot) Off() error {
 		cmd = []byte{0x57, 0x01, 0x02}
 	}
 	return b.trigger(cmd)
-}
-
-// SetPSetPSetPassword sets SwitchBot's password.
-// If SwitchBot is configured to use password authentication,
-// you need to call SetPassword before calling Press/On/Off function.
-func (b *Bot) SetPassword(pw string) {
-	crc := crc32.ChecksumIEEE([]byte(pw))
-	bs := make([]byte, 4)
-	binary.BigEndian.PutUint32(bs[0:], crc)
-	b.pw = bs
 }
 
 func (b *Bot) encrypted() bool {
