@@ -93,8 +93,9 @@ func TestSubscribeOk(t *testing.T) {
 
 func TestGetSettingsOk(t *testing.T) {
 	cl := &MockBleClient{}
+	want := []byte{1, 79, 45, 100, 0, 0, 0, 152, 0, 0, 0, 72, 0}
 	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
-		go h([]byte{12, 12, 12})
+		go h(want)
 		return nil
 	}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
@@ -104,17 +105,21 @@ func TestGetSettingsOk(t *testing.T) {
 		return nil
 	}
 	bot := newBot("ADDR", cl)
-	s, err := bot.GetSettings()
+	got, err := bot.GetSettings()
 	if err != nil {
 		t.Fatal("Must not return error")
 	}
-	if !bytes.Equal(s, []byte{12, 12, 12}) {
+	if !bytes.Equal(got, want) {
 		t.Fatal("Incorrect return value")
 	}
 }
 
 func TestPress(t *testing.T) {
 	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{1, 255, 0})
+		return nil
+	}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
 			t.Fatal("Incorrect VHandle")
@@ -130,13 +135,17 @@ func TestPress(t *testing.T) {
 
 	bot := newBot("ADDR", cl)
 	bot.cl = cl
-	if err := bot.Press(); err != nil {
+	if err := bot.Press(false); err != nil {
 		t.Fatal("test failed")
 	}
 }
 
 func TestPressWithPassword(t *testing.T) {
 	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{1, 255, 0})
+		return nil
+	}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
 			t.Fatal("Incorrect VHandle")
@@ -153,7 +162,41 @@ func TestPressWithPassword(t *testing.T) {
 	bot := newBot("ADDR", cl)
 	bot.SetPassword("password")
 	bot.cl = cl
-	if err := bot.Press(); err != nil {
+	if err := bot.Press(false); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func TestPressWaitFail(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{0, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.Press(true); err == nil {
+		t.Fatal("Must return error")
+	}
+}
+
+func TestPressWaitSuccess(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{1, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.Press(true); err != nil {
 		t.Fatal("test failed")
 	}
 }
@@ -175,7 +218,7 @@ func TestOn(t *testing.T) {
 
 	bot := newBot("ADDR", cl)
 	bot.cl = cl
-	if err := bot.On(); err != nil {
+	if err := bot.On(false); err != nil {
 		t.Fatal("test failed")
 	}
 }
@@ -199,7 +242,41 @@ func TestOnWithPassword(t *testing.T) {
 	bot := newBot("ADDR", cl)
 	bot.SetPassword("password")
 	bot.cl = cl
-	if err := bot.On(); err != nil {
+	if err := bot.On(false); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func TestOnWaitFail(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{0, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.On(true); err == nil {
+		t.Fatal("Must return error")
+	}
+}
+
+func TestOnWaitSuccess(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{1, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.On(true); err != nil {
 		t.Fatal("test failed")
 	}
 }
@@ -220,7 +297,7 @@ func TestOff(t *testing.T) {
 	}
 
 	bot := newBot("ADDR", cl)
-	if err := bot.Off(); err != nil {
+	if err := bot.Off(false); err != nil {
 		t.Fatal("test failed")
 	}
 }
@@ -244,7 +321,41 @@ func TestOffWithPassword(t *testing.T) {
 	bot := newBot("ADDR", cl)
 	bot.SetPassword("password")
 	bot.cl = cl
-	if err := bot.Off(); err != nil {
+	if err := bot.Off(false); err != nil {
+		t.Fatal("test failed")
+	}
+}
+
+func TestOffWaitFail(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{0, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.Off(true); err == nil {
+		t.Fatal("Must return error")
+	}
+}
+
+func TestOffWaitSuccess(t *testing.T) {
+	cl := &MockBleClient{}
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go h([]byte{1, 255, 0})
+		return nil
+	}
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		return nil
+	}
+
+	bot := newBot("ADDR", cl)
+	bot.cl = cl
+	if err := bot.Off(true); err != nil {
 		t.Fatal("test failed")
 	}
 }

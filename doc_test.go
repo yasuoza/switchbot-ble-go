@@ -35,5 +35,5 @@ func Example_scanAndPress() {
 
 	// Trigger Press.
 	log.Printf("Connected to SwitchBot %s. Trigger Press\n", addr)
-	bot.Press()
+	bot.Press(false)
 }

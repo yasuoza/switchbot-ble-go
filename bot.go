@@ -21,12 +21,14 @@ type Bot struct {
 	cl ble.Client
 	pw []byte
 
-	subsque chan []byte
+	subsque    chan []byte
+	subscribed bool
 }
 
 func NewBot(addr string) *Bot {
 	b := &Bot{Addr: strings.ToLower(addr)}
 	b.subsque = make(chan []byte)
+	b.subscribed = false
 	return b
 }
 
@@ -62,67 +64,85 @@ func (b *Bot) Subscribe() error {
 
 // Press triggers press function for the SwitchBot.
 // SwitchBot must be set to press mode.
-func (b *Bot) Press() error {
+func (b *Bot) Press(wait bool) error {
 	var cmd []byte
 	if b.encrypted() {
 		cmd = append([]byte{0x57, 0x11}, b.pw...)
 	} else {
 		cmd = []byte{0x57, 0x01}
 	}
-	return b.trigger(cmd)
+	_, err := b.trigger(cmd, wait)
+	return err
 }
 
 // On triggers on function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
-func (b *Bot) On() error {
+func (b *Bot) On(wait bool) error {
 	var cmd []byte
 	if b.encrypted() {
 		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x01}...)
 	} else {
 		cmd = []byte{0x57, 0x01, 0x01}
 	}
-	return b.trigger(cmd)
+	_, err := b.trigger(cmd, wait)
+	return err
 }
 
 // Off triggers off function for the SwitchBot.
 // SwitchBot must be set to On/Off mode.
-func (b *Bot) Off() error {
+func (b *Bot) Off(wait bool) error {
 	var cmd []byte
 	if b.encrypted() {
 		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x02}...)
 	} else {
 		cmd = []byte{0x57, 0x01, 0x02}
 	}
-	return b.trigger(cmd)
+	_, err := b.trigger(cmd, wait)
+	return err
 }
 
 // GetSettings retrieves bot's settings.
 func (b *Bot) GetSettings() ([]byte, error) {
-	if err := b.Subscribe(); err != nil {
-		return nil, err
-	}
-
 	var cmd []byte
 	if len(b.pw) != 0 {
 		cmd = append([]byte{0x57, 0x12}, b.pw...)
 	} else {
 		cmd = []byte{0x57, 0x02}
 	}
-	if err := b.trigger(cmd); err != nil {
+
+	res, err := b.trigger(cmd, true)
+	if err != nil {
 		return nil, err
 	}
-	return <-b.subsque, nil
+	return res, nil
 }
 
 func (b *Bot) encrypted() bool {
 	return len(b.pw) != 0
 }
 
-func (b *Bot) trigger(cmd []byte) error {
+func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
+	if wait && !b.subscribed {
+		if err := b.Subscribe(); err != nil {
+			return []byte{}, err
+		}
+	}
+
 	c := ble.NewCharacteristic(ble.MustParse(characteristics))
 	c.ValueHandle = handle
 	if err := b.cl.WriteCharacteristic(c, cmd, false); err != nil {
-		return err
+		return []byte{0}, err
 	}
-	return nil
+
+	// If waitResp is false, We don't need to wait response.
+	// Return nil as succeeded response.
+	if !wait {
+		return []byte{1}, nil
+	}
+
+	if res := <-b.subsque; res[0] == byte(1) {
+		return res, nil
+	} else {
+		return res, errors.New("Failed to press")
+	}
 }
