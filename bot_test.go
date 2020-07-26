@@ -18,7 +18,7 @@ func (p *MockBleClient) WriteCharacteristic(c *ble.Characteristic, v []byte, noR
 	return p.writeCharacteristics(c, v, noRsp)
 }
 
-func Test_SetPassword(t *testing.T) {
+func TestSetPassword(t *testing.T) {
 	cl := &MockBleClient{}
 	bot := &Bot{"ADDR", cl, []byte{}}
 	bot.SetPassword("password")
@@ -28,7 +28,7 @@ func Test_SetPassword(t *testing.T) {
 	}
 }
 
-func Test_Press(t *testing.T) {
+func TestPress(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
@@ -50,7 +50,7 @@ func Test_Press(t *testing.T) {
 	}
 }
 
-func Test_Press_With_Password(t *testing.T) {
+func TestPressWithPassword(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
@@ -73,7 +73,7 @@ func Test_Press_With_Password(t *testing.T) {
 	}
 }
 
-func Test_On(t *testing.T) {
+func TestOn(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
@@ -95,7 +95,7 @@ func Test_On(t *testing.T) {
 	}
 }
 
-func Test_On_With_Password(t *testing.T) {
+func TestOnWithPassword(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
@@ -119,7 +119,7 @@ func Test_On_With_Password(t *testing.T) {
 	}
 }
 
-func Test_Off(t *testing.T) {
+func TestOff(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {
@@ -140,7 +140,7 @@ func Test_Off(t *testing.T) {
 	}
 }
 
-func Test_Off_With_Password(t *testing.T) {
+func TestOffWithPassword(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
 		if c.ValueHandle != 0x16 {

@@ -38,7 +38,7 @@ func (a MockAdvertisement) Services() []ble.UUID {
 	return a.services
 }
 
-func Test_Scan_Error(t *testing.T) {
+func TestScanError(t *testing.T) {
 	d := &MockDevice{}
 	d.scan = func(ctx context.Context, allowDup bool, h ble.AdvHandler) error {
 		return errors.New("Scan Error")
@@ -50,7 +50,7 @@ func Test_Scan_Error(t *testing.T) {
 	}
 }
 
-func Test_Scan_Not_Found(t *testing.T) {
+func TestScanNotFound(t *testing.T) {
 	d := &MockDevice{}
 	d.scan = func(ctx context.Context, allowDup bool, h ble.AdvHandler) error {
 		return context.DeadlineExceeded
@@ -62,7 +62,7 @@ func Test_Scan_Not_Found(t *testing.T) {
 	}
 }
 
-func Test_Scan_Found(t *testing.T) {
+func TestScanFound(t *testing.T) {
 	advs := []MockAdvertisement{
 		*&MockAdvertisement{
 			addr:     "7F:8E:6B:F5:CA:91",
@@ -97,7 +97,7 @@ func Test_Scan_Found(t *testing.T) {
 	}
 }
 
-func Test_Connect_NG(t *testing.T) {
+func TestConnectNG(t *testing.T) {
 	addr := "7f:8e:6b:f5:ca:91"
 	d := &MockDevice{}
 	d.scan = func(ctx context.Context, allowDup bool, h ble.AdvHandler) error {
@@ -114,7 +114,7 @@ func Test_Connect_NG(t *testing.T) {
 	}
 }
 
-func Test_Connect_OK(t *testing.T) {
+func TestConnectOK(t *testing.T) {
 	addr := "9d:76:72:29:40:83"
 	a := &MockAdvertisement{
 		addr: addr,
