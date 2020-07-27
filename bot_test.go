@@ -91,11 +91,11 @@ func TestSubscribeOk(t *testing.T) {
 	}
 }
 
-func TestGetSettingsOk(t *testing.T) {
+func TestGetInfoOk(t *testing.T) {
 	cl := &MockBleClient{}
-	want := []byte{1, 79, 45, 100, 0, 0, 0, 152, 0, 0, 0, 72, 0}
+	raw := []byte{1, 79, 45, 100, 0, 0, 0, 152, 0, 0, 3, 72, 0}
 	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
-		go h(want)
+		go h(raw)
 		return nil
 	}
 	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
@@ -105,12 +105,12 @@ func TestGetSettingsOk(t *testing.T) {
 		return nil
 	}
 	bot := newBot("ADDR", cl)
-	got, err := bot.GetSettings()
+	info, err := bot.GetInfo()
 	if err != nil {
 		t.Fatal("Must not return error")
 	}
-	if !bytes.Equal(got, want) {
-		t.Fatal("Incorrect return value")
+	if info == nil {
+		t.Errorf("info must not to be nil, but %v", info)
 	}
 }
 

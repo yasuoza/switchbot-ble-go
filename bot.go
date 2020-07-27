@@ -101,8 +101,8 @@ func (b *Bot) Off(wait bool) error {
 	return err
 }
 
-// GetSettings retrieves bot's settings.
-func (b *Bot) GetSettings() ([]byte, error) {
+// GetInfo retrieves bot's settings.
+func (b *Bot) GetInfo() (*BotInfo, error) {
 	var cmd []byte
 	if len(b.pw) != 0 {
 		cmd = append([]byte{0x57, 0x12}, b.pw...)
@@ -114,7 +114,7 @@ func (b *Bot) GetSettings() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	return NewBotInfoWithRawInfo(res), nil
 }
 
 func (b *Bot) encrypted() bool {
