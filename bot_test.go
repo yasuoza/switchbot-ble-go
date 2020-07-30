@@ -114,6 +114,47 @@ func TestGetInfoOk(t *testing.T) {
 	}
 }
 
+func TestGetTimersOk(t *testing.T) {
+	cl := &MockBleClient{}
+	raw := [][]byte{
+		{1, 2, 0, 121, 10, 11, 0, 0, 0, 0, 0, 0},
+		{1, 2, 0, 0, 12, 0, 64, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nil
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nil
+		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // nil
+	}
+	scnt := 0
+	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {
+		go func() {
+			h(raw[scnt])
+			scnt++
+		}()
+		return nil
+	}
+	wcnt := 0
+	cl.writeCharacteristics = func(c *ble.Characteristic, v []byte, noRsp bool) error {
+		if !bytes.Equal(v, append([]byte{0x57, 0x08}, []byte{byte(wcnt*16 + 3)}...)) {
+			t.Fatal("Invalid cmd")
+		}
+		wcnt++
+		return nil
+	}
+	bot := newBot("ADDR", cl)
+	timers, err := bot.GetTimers(len(raw))
+	if err != nil {
+		t.Fatal("Must not return error")
+	}
+	for i := 0; i < len(raw); i++ {
+		timer := timers[i]
+		if i < 2 && timer == nil {
+			t.Errorf("timer at index %d is expected not nil, but got nil\n", i)
+		}
+		if i > 2 && timer != nil {
+			t.Errorf("timer at index %d is expected nil, but got %v\n", i, timer)
+		}
+	}
+}
+
 func TestPress(t *testing.T) {
 	cl := &MockBleClient{}
 	cl.subscribe = func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error {

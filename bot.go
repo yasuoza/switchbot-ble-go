@@ -117,6 +117,28 @@ func (b *Bot) GetInfo() (*BotInfo, error) {
 	return NewBotInfoWithRawInfo(res), nil
 }
 
+func (b *Bot) GetTimers(cnt int) ([]*Timer, error) {
+	ret := []*Timer{}
+
+	for i := 0; i < cnt; i++ {
+		var cmd []byte
+		if len(b.pw) != 0 {
+			cmd = append([]byte{0x57, 0x18}, b.pw...)
+		} else {
+			cmd = []byte{0x57, 0x08}
+		}
+		cmd = append(cmd, []byte{byte(i*16 + 3)}...)
+		r, err := b.trigger(cmd, true)
+		if err != nil {
+			return ret, err
+		}
+		t := ParseTimerBytes(r)
+		ret = append(ret, t)
+	}
+
+	return ret, nil
+}
+
 func (b *Bot) encrypted() bool {
 	return len(b.pw) != 0
 }
