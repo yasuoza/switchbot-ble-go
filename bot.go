@@ -62,6 +62,10 @@ func (b *Bot) Subscribe() error {
 	return nil
 }
 
+func (b *Bot) Disconnect() error {
+	return b.cl.CancelConnection()
+}
+
 // Press triggers press function for the SwitchBot.
 // SwitchBot must be set to press mode.
 func (b *Bot) Press(wait bool) error {
