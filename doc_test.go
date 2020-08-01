@@ -14,7 +14,10 @@ func Example_scanAndPress() {
 	timeout := 5 * time.Second
 
 	// Scan SwitchBots.
-	addrs, err := switchbot.Scan(ctx, timeout)
+	var addrs []string
+	err := switchbot.Scan(ctx, timeout, func(addr string) {
+		addrs = append(addrs, addr)
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

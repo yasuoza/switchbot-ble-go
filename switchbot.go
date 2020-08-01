@@ -16,22 +16,21 @@ var (
 )
 
 // Scan scans nearby SwitchBots.
-// If some SwitchBots are found, it returns slice of their MAC addresses.
-// If any SwitchBots are not found, it returns empty slice and error is nil for this case.
-func Scan(ctx context.Context, timeout time.Duration) ([]string, error) {
+// Callback function will be executed with MAC address once a SwitchBot is found.
+// If any SwitchBots are not found, it returns nothing(no timeout error).
+func Scan(ctx context.Context, timeout time.Duration, f func(addr string)) error {
 	err := setupDefaultDevice()
 	if err != nil {
-		return []string{}, fmt.Errorf("Cound not initialize a device: %w", err)
+		return fmt.Errorf("Cound not initialize a device: %w", err)
 	}
 
-	addrs := []string{}
 	ctx = ble.WithSigHandler(context.WithTimeout(ctx, timeout))
 	err = ble.Scan(ctx, false, func(a ble.Advertisement) {
 		if contains(a.Services(), serviceUUID) {
-			addrs = append(addrs, a.Addr().String())
+			f(a.Addr().String())
 		}
 	}, nil)
-	return addrs, scanError(err)
+	return scanError(err)
 }
 
 // Connect connects to SwitchBot filter by addr argument.

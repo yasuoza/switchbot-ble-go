@@ -45,7 +45,7 @@ func TestScanError(t *testing.T) {
 	}
 	bleDevice = d
 
-	if _, err := Scan(context.Background(), 0); err == nil {
+	if err := Scan(context.Background(), 0, nil); err == nil {
 		t.Fatal("Must return error")
 	}
 }
@@ -57,7 +57,7 @@ func TestScanNotFound(t *testing.T) {
 	}
 	bleDevice = d
 
-	if _, err := Scan(context.Background(), 0); err != nil {
+	if err := Scan(context.Background(), 0, nil); err != nil {
 		t.Fatal("Must not return DeadlineExceeded error")
 	}
 }
@@ -87,7 +87,10 @@ func TestScanFound(t *testing.T) {
 	}
 	bleDevice = d
 
-	addrs, err := Scan(context.Background(), 0)
+	var addrs []string
+	err := Scan(context.Background(), 0, func(addr string) {
+		addrs = append(addrs, addr)
+	})
 	if err != nil {
 		t.Fatal("Must not return error")
 	}
