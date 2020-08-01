@@ -1,5 +1,6 @@
 package switchbot
 
+// Timer represents Timer configuration.
 type Timer struct {
 	Enabled  bool
 	Weekdays [7]bool
@@ -8,6 +9,7 @@ type Timer struct {
 	Action   int
 }
 
+// ParseTimerBytes parses bytes to timer object.
 func ParseTimerBytes(val []byte) *Timer {
 	enabled := val[3] != 0
 	h := int(val[4])

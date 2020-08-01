@@ -15,7 +15,7 @@ type BotInfo struct {
 	HoldSec    int
 }
 
-// NewNewBotInfoWithRawInfo initialize BotInfo with raw byte data.
+// NewBotInfoWithRawInfo initialize BotInfo with raw byte data.
 // This works with switchbot.GetInfo.
 func NewBotInfoWithRawInfo(info []byte) *BotInfo {
 	batt := int(info[1])

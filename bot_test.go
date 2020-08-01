@@ -17,7 +17,7 @@ type MockBleClient struct {
 	subscribe            func(c *ble.Characteristic, ind bool, h ble.NotificationHandler) error
 }
 
-func (p *MockBleClient) DiscoverProfile(force bool) (*ble.Profile, error) {
+func (cl *MockBleClient) DiscoverProfile(force bool) (*ble.Profile, error) {
 	s := ble.NewService(ble.MustParse("7b74bec2-ce6f-11ea-87d0-0242ac130003"))
 	s.Characteristics = []*ble.Characteristic{ble.NewCharacteristic(ble.MustParse("cba20003-224d-11e6-9fb8-0002a5d5c51b"))}
 	pr := &ble.Profile{}

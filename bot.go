@@ -25,6 +25,7 @@ type Bot struct {
 	subscribed bool
 }
 
+// NewBot initializes bot object.
 func NewBot(addr string) *Bot {
 	b := &Bot{Addr: strings.ToLower(addr)}
 	b.subsque = make(chan []byte)
@@ -32,7 +33,7 @@ func NewBot(addr string) *Bot {
 	return b
 }
 
-// SetPSetPSetPassword sets SwitchBot's password.
+// SetPassword sets SwitchBot's password.
 // If SwitchBot is configured to use password authentication,
 // you need to call SetPassword before calling Press/On/Off function.
 func (b *Bot) SetPassword(pw string) {
@@ -62,6 +63,7 @@ func (b *Bot) Subscribe() error {
 	return nil
 }
 
+// Disconnect  disconnects current SwitchBOt connection.
 func (b *Bot) Disconnect() error {
 	return b.cl.CancelConnection()
 }
@@ -121,6 +123,7 @@ func (b *Bot) GetInfo() (*BotInfo, error) {
 	return NewBotInfoWithRawInfo(res), nil
 }
 
+// GetTimers retrieves bot's timer settings.
 func (b *Bot) GetTimers(cnt int) ([]*Timer, error) {
 	ret := []*Timer{}
 
@@ -147,10 +150,14 @@ func (b *Bot) encrypted() bool {
 	return len(b.pw) != 0
 }
 
+// trigger executes write characteristics againt SwitchBot.
+// response []byte represents following status.
+// []byte{1}: trigger success.
+// []byte{0}: trigger failure.
 func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 	if wait && !b.subscribed {
 		if err := b.Subscribe(); err != nil {
-			return []byte{}, err
+			return []byte{0}, err
 		}
 	}
 
@@ -166,9 +173,9 @@ func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 		return []byte{1}, nil
 	}
 
-	if res := <-b.subsque; res[0] == byte(1) {
-		return res, nil
-	} else {
+	res := <-b.subsque
+	if res[0] != byte(1) {
 		return res, errors.New("Failed to press")
 	}
+	return res, nil
 }
