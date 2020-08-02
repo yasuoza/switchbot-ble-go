@@ -26,6 +26,9 @@ func main() {
 		"press": func() (cli.Command, error) {
 			return &command.PressCommand{UI: ui}, nil
 		},
+		"info": func() (cli.Command, error) {
+			return &command.InfoCommand{UI: ui}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()
