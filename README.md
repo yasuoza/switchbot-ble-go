@@ -10,7 +10,10 @@ func main() {
 	timeout := 5 * time.Second
 
 	// Scan SwitchBots.
-	addrs, err := switchbot.Scan(ctx, timeout)
+	var addrs []string
+	err := switchbot.Scan(ctx, timeout, func(addr string) {
+		addrs = append(addrs, addr)
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,6 +34,6 @@ func main() {
 
 	// Trigger Press.
 	log.Printf("Connected to SwitchBot %s. Trigger Press\n", addr)
-	bot.Press()
+	bot.Press(false)
 }
 ```
