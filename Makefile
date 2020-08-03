@@ -9,5 +9,15 @@ cmd/switchbot/switchbot: *.go cmd/switchbot/*.go go.*
 test:
 	go test -v .
 
+# https://goreleaser.com/install/#running-with-docker
+goreleaser/build:
+	docker run --rm --privileged \
+		-v ${PWD}:/go/src/github.com/user/repo \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-w /go/src/github.com/user/repo \
+		goreleaser/goreleaser \
+		build \
+		--rm-dist --skip-validate
+
 clean:
 	rm -f cmd/switchbot/switchbot
