@@ -2,9 +2,42 @@
 
 Unofficial [SwitchBot](https://www.switch-bot.com/) client for Go.
 
-## Example
+## Commandline
+
+```
+$ go get github.com/yasuoza/switchbot
+```
+
+```
+Usage: switchbot [--version] [--help] <command> [<args>]
+
+Available commands are:
+    info     Show current SwitchBot information
+    press    Trigger press command
+    scan     Search for SwitchBots
+```
+
+Scan SwitchBots.
+
+```
+$ switchbot scan
+11:11:11:11:11:11
+```
+
+Press.
+
+```
+switchbot press -max-retry '11:11:11:11:11:11'
+```
+
+## API Example
 
 ```go
+
+import (
+  "github.com/yasuoza/switchbot"
+)
+
 func main() {
 	ctx := context.Background()
 	timeout := 5 * time.Second
