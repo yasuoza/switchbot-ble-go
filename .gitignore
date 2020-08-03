@@ -1,5 +1,7 @@
 /cmd/switchbot/switchbot
 /dist
+.direnv
+samples
 
 # Created by https://www.toptal.com/developers/gitignore/api/go
 # Edit at https://www.toptal.com/developers/gitignore?templates=go
