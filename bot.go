@@ -63,9 +63,16 @@ func (b *Bot) Subscribe() error {
 	return nil
 }
 
-// Disconnect  disconnects current SwitchBOt connection.
+// Disconnect  disconnects current SwitchBot connection.
 func (b *Bot) Disconnect() error {
-	return b.cl.CancelConnection()
+	clearErr := b.cl.ClearSubscriptions()
+	cancelErr := b.cl.CancelConnection()
+
+	if clearErr != nil || cancelErr != nil {
+		return errors.New("failed to disconnect")
+	}
+
+	return nil
 }
 
 // Press triggers press function for the SwitchBot.
