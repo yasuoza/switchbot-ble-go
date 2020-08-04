@@ -39,5 +39,8 @@ archives:
       - goos: windows
         format: zip
 
+changelog:
+  sort: asc
+
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
