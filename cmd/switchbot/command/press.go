@@ -21,6 +21,7 @@ type pressCfg struct {
 	Addr       string
 	TimeoutSec int
 	MaxRetry   int
+	WaitResp   bool
 }
 
 // Run executes parse args and pass args to RunContext.
@@ -62,6 +63,7 @@ Usage: switchbot press [options] ADDRESS
 Options:
   -timeout=10                 Connection timeout seconds. (Default 10)
   -max-retry=0                Maximum retry count. (Default 0)
+  -wait=true                  Wait success/failure response from SwitchBot. (Default true)
 `
 
 	return strings.TrimSpace(helpText)
@@ -77,6 +79,7 @@ func (c *PressCommand) parseArgs(args []string) (*pressCfg, int) {
 	flags := flag.NewFlagSet("press", flag.ContinueOnError)
 	flags.IntVar(&cfg.TimeoutSec, "timeout", 10, "")
 	flags.IntVar(&cfg.MaxRetry, "max-retry", 0, "")
+	flags.BoolVar(&cfg.WaitResp, "wait", true, "")
 	flags.Usage = func() {
 		c.UI.Info(c.Help())
 	}
@@ -113,7 +116,7 @@ func connectWithRetry(ctx context.Context, cfg *pressCfg) (*switchbot.Bot, error
 func pressWithRetry(bot *switchbot.Bot, cfg *pressCfg) error {
 	retries := 0
 	for {
-		err := bot.Press(true)
+		err := bot.Press(cfg.WaitResp)
 		if err == nil {
 			return nil
 		}
