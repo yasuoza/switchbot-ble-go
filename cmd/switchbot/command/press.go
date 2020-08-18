@@ -32,25 +32,16 @@ func (c *PressCommand) Run(args []string) int {
 		return parseStatus
 	}
 
-	return c.RunContext(context.Background(), arg)
+	return c.RunWithContext(context.Background(), arg)
 }
 
 // RunContext executes Press function.
-func (c *PressCommand) RunContext(ctx context.Context, cfg *pressCfg) int {
-	bot, err := connectWithRetry(ctx, cfg)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to connect SwitchBot: %s", err.Error())
-		c.UI.Error(msg)
-		return 1
-	}
-	defer bot.Disconnect()
-
-	if err := pressWithRetry(bot, cfg); err != nil {
+func (c *PressCommand) RunWithContext(ctx context.Context, cfg *pressCfg) int {
+	if err := c.runWithRetry(ctx, cfg, 1); err != nil {
 		msg := fmt.Sprintf("Failed to press SwitchBot: %s", err.Error())
 		c.UI.Error(msg)
 		return 1
 	}
-
 	return 0
 }
 
@@ -94,40 +85,31 @@ func (c *PressCommand) parseArgs(args []string) (*pressCfg, int) {
 	return cfg, 0
 }
 
-func connectWithRetry(ctx context.Context, cfg *pressCfg) (*switchbot.Bot, error) {
-	retries := 0
-	for {
-		bot, err := switchbot.Connect(ctx, cfg.Addr, time.Duration(cfg.TimeoutSec)*time.Second)
-		if err == nil {
-			return bot, nil
-		}
-
-		if cfg.MaxRetry <= 0 || retries > cfg.MaxRetry {
-			return nil, err
-		}
-
-		// Exponential Backoff
-		waitTime := 2 ^ retries + rand.Intn(1000)/1000
-		time.Sleep(time.Duration(waitTime) * time.Second)
-		retries++
-	}
-}
-
-func pressWithRetry(bot *switchbot.Bot, cfg *pressCfg) error {
-	retries := 0
-	for {
-		err := bot.Press(cfg.WaitResp)
-		if err == nil {
-			return nil
-		}
-
-		if cfg.MaxRetry <= 0 || retries > cfg.MaxRetry {
+// RuRunWithRetry executes Press function with retry option.
+func (c *PressCommand) runWithRetry(ctx context.Context, cfg *pressCfg, tries int) error {
+	bot, err := switchbot.Connect(ctx, cfg.Addr, time.Duration(cfg.TimeoutSec)*time.Second)
+	if err != nil {
+		if tries > cfg.MaxRetry {
 			return err
+		} else {
+			// Exponential Backoff
+			waitTime := 2 ^ tries + rand.Intn(1000)/1000
+			time.Sleep(time.Duration(waitTime) * time.Second)
+			return c.runWithRetry(ctx, cfg, tries+1)
 		}
-
-		// Exponential Backoff
-		waitTime := 2 ^ retries + rand.Intn(1000)/1000
-		time.Sleep(time.Duration(waitTime) * time.Second)
-		retries++
 	}
+	defer bot.Disconnect()
+
+	if err := bot.Press(cfg.WaitResp); err != nil {
+		if tries > cfg.MaxRetry {
+			return err
+		} else {
+			// Exponential Backoff
+			waitTime := 2 ^ tries + rand.Intn(1000)/1000
+			time.Sleep(time.Duration(waitTime) * time.Second)
+			return c.runWithRetry(ctx, cfg, tries+1)
+		}
+	}
+
+	return nil
 }
