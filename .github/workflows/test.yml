@@ -16,7 +16,7 @@ jobs:
         go: [1.13, 1.14]
     name: Test with Go version ${{ matrix.go }}
     steps:
-      - uses: actions/setup-go@v2.1.1
+      - uses: actions/setup-go@v2.1.2
         with:
           go-version: ${{ matrix.go }}
 
