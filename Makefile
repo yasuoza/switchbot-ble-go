@@ -4,7 +4,7 @@ export GO111MODULE := on
 .PHONY: test binary install clean
 
 cmd/switchbot/switchbot: *.go cmd/switchbot/*.go go.*
-	cd cmd/switchbot && go build -ldflags "-s -w -X main.Version=${GIT_VER}" -gcflags="-trimpath=${PWD}"
+	cd cmd/switchbot && go build -trimpath -ldflags "-s -w -X main.Version=${GIT_VER}"
 
 test:
 	go test -v .
