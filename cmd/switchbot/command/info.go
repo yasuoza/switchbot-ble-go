@@ -2,8 +2,10 @@ package command
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -19,6 +21,7 @@ type InfoCommand struct {
 
 type infoCfg struct {
 	Addr       string
+	Format     string
 	TimeoutSec int
 }
 
@@ -48,23 +51,85 @@ func (c *InfoCommand) RunContext(ctx context.Context, cfg *infoCfg) int {
 		return 1
 	}
 
+	if cfg.Format == "json" {
+		err := printAsJson(info)
+		if err != nil {
+			c.UI.Error("Failed to retreive info from SwitchBot")
+			return 1
+		}
+	} else {
+		printAsTable(info, c.UI.Writer)
+	}
+
+	return 0
+}
+
+func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
+	cfg := &infoCfg{}
+	flags := flag.NewFlagSet("info", flag.ContinueOnError)
+	flags.IntVar(&cfg.TimeoutSec, "timeout", 10, "")
+	flags.StringVar(&cfg.Format, "format", "table", "")
+	flags.Usage = func() {
+		c.UI.Info(c.Help())
+	}
+	flags.Parse(args)
+
+	args = flags.Args()
+	if len(args) != 1 || (cfg.Format != "table" && cfg.Format != "json") {
+		flags.Usage()
+		return cfg, 127
+	}
+
+	cfg.Addr = args[0]
+	return cfg, 0
+}
+
+// Help represents help message for press command.
+func (c *InfoCommand) Help() string {
+	helpText := `
+Usage: switchbot info [options] ADDRESS
+  Will retreive latest info from a SwitchBot specified by ADDRESS.
+
+Options:
+  -format=table               Output format. 'table' and 'json' are available.
+  -timeout=10                 Connection timeout seconds. (Default 10)
+`
+
+	return strings.TrimSpace(helpText)
+}
+
+// Synopsis represents synopsis message for press command.
+func (c *InfoCommand) Synopsis() string {
+	return "Show current SwitchBot information"
+}
+
+func printAsJson(i *switchbot.BotInfo) error {
+	data, err := json.MarshalIndent(i, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+func printAsTable(i *switchbot.BotInfo, writer io.Writer) {
 	var smode string
-	if info.StateMode {
+	if i.StateMode {
 		smode = "on/off"
 	} else {
 		smode = "press"
 	}
 
 	data := []string{
-		fmt.Sprintf("%d", info.Battery),
-		fmt.Sprintf("%0.1f", info.Firmware),
-		fmt.Sprintf("%d", info.TimerCount),
+		fmt.Sprintf("%d", i.Battery),
+		fmt.Sprintf("%0.1f", i.Firmware),
+		fmt.Sprintf("%d", i.TimerCount),
 		smode,
-		fmt.Sprintf("%v", info.Inverse),
-		fmt.Sprintf("%d", info.HoldSec),
+		fmt.Sprintf("%v", i.Inverse),
+		fmt.Sprintf("%d", i.HoldSec),
 	}
 
-	table := tablewriter.NewWriter(c.UI.Writer)
+	table := tablewriter.NewWriter(writer)
 	table.SetHeader([]string{"Battery(%)", "Firmware", "Timers", "Mode", "Inverse", "Hold(sec)"})
 	table.SetAutoWrapText(false)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
@@ -77,42 +142,4 @@ func (c *InfoCommand) RunContext(ctx context.Context, cfg *infoCfg) int {
 	table.SetNoWhiteSpace(true)
 	table.Append(data)
 	table.Render()
-
-	return 0
-}
-
-func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
-	cfg := &infoCfg{}
-	flags := flag.NewFlagSet("info", flag.ContinueOnError)
-	flags.IntVar(&cfg.TimeoutSec, "timeout", 10, "")
-	flags.Usage = func() {
-		c.UI.Info(c.Help())
-	}
-	flags.Parse(args)
-
-	args = flags.Args()
-	if len(args) != 1 {
-		flags.Usage()
-		return cfg, 127
-	}
-	cfg.Addr = args[0]
-	return cfg, 0
-}
-
-// Help represents help message for press command.
-func (c *InfoCommand) Help() string {
-	helpText := `
-Usage: switchbot info [options] ADDRESS
-  Will retreive latest info from a SwitchBot specified by ADDRESS.
-
-Options:
-  -timeout=10                 Connection timeout seconds. (Default 10)
-`
-
-	return strings.TrimSpace(helpText)
-}
-
-// Synopsis represents synopsis message for press command.
-func (c *InfoCommand) Synopsis() string {
-	return "Show current SwitchBot information"
 }

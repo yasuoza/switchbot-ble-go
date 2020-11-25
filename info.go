@@ -7,12 +7,12 @@ import (
 
 // BotInfo represents current SwitchBot's information.
 type BotInfo struct {
-	Battery    int
-	Firmware   float64
-	TimerCount int
-	StateMode  bool
-	Inverse    bool
-	HoldSec    int
+	Battery    int     `json:"battery"`
+	Firmware   float64 `json:"firmware"`
+	TimerCount int     `json:"timer_count"`
+	StateMode  bool    `json:"state_mode"`
+	Inverse    bool    `json:"inverse"`
+	HoldSec    int     `json:"hold_sec"`
 }
 
 // NewBotInfoWithRawInfo initialize BotInfo with raw byte data.
