@@ -26,13 +26,13 @@ type pressCfg struct {
 
 // Run executes parse args and pass args to RunContext.
 func (c *PressCommand) Run(args []string) int {
-	arg, parseStatus := c.parseArgs(args)
+	cfg, parseStatus := c.parseArgs(args)
 
 	if parseStatus != 0 {
 		return parseStatus
 	}
 
-	if err := c.runWithRetry(context.Background(), arg); err != nil {
+	if err := c.runWithRetry(context.Background(), cfg); err != nil {
 		msg := fmt.Sprintf("Failed to press SwitchBot: %s", err.Error())
 		c.UI.Error(msg)
 		return 1
