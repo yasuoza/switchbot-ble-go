@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/mitchellh/cli"
 	"github.com/olekukonko/tablewriter"
 	"github.com/yasuoza/switchbot"
@@ -22,30 +23,25 @@ type InfoCommand struct {
 type infoCfg struct {
 	Addr       string
 	Format     string
+	MaxRetry   int
 	TimeoutSec int
 }
 
 // Run executes parse args and pass args to RunContext.
 func (c *InfoCommand) Run(args []string) int {
-	arg, parseStatus := c.parseArgs(args)
+	cfg, parseStatus := c.parseArgs(args)
 
 	if parseStatus != 0 {
 		return parseStatus
 	}
 
-	return c.RunContext(context.Background(), arg)
-}
-
-// RunContext executes Info function.
-func (c *InfoCommand) RunContext(ctx context.Context, cfg *infoCfg) int {
-	bot, err := switchbot.Connect(ctx, cfg.Addr, time.Duration(cfg.TimeoutSec)*time.Second)
+	info, err := c.runWithRetry(context.Background(), cfg)
 	if err != nil {
-		c.UI.Error("Failed to connect SwitchBot")
+		msg := fmt.Sprintf("Failed to retreive info from SwitchBot: %s", err.Error())
+		c.UI.Error(msg)
 		return 1
 	}
-	defer bot.Disconnect()
 
-	info, err := bot.GetInfo()
 	if err != nil {
 		c.UI.Error("Failed to retreive info from SwitchBot")
 		return 1
@@ -54,7 +50,8 @@ func (c *InfoCommand) RunContext(ctx context.Context, cfg *infoCfg) int {
 	if cfg.Format == "json" {
 		err := printAsJson(info)
 		if err != nil {
-			c.UI.Error("Failed to retreive info from SwitchBot")
+			msg := fmt.Sprintf("Failed to retreive info from SwitchBot: %s", err.Error())
+			c.UI.Error(msg)
 			return 1
 		}
 	} else {
@@ -62,13 +59,50 @@ func (c *InfoCommand) RunContext(ctx context.Context, cfg *infoCfg) int {
 	}
 
 	return 0
+
+}
+
+// ConnectAndGetInfo connect and get info.
+func (c *InfoCommand) ConnectAndGetInfo(ctx context.Context, cfg *infoCfg) (*switchbot.BotInfo, error) {
+	bot, err := switchbot.Connect(ctx, cfg.Addr, time.Duration(cfg.TimeoutSec)*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	defer bot.Disconnect()
+
+	info, err := bot.GetInfo()
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
+}
+
+// Help represents help message for press command.
+func (c *InfoCommand) Help() string {
+	helpText := `
+Usage: switchbot info [options] ADDRESS
+  Will retreive latest info from a SwitchBot specified by ADDRESS.
+
+Options:
+  -format=table               Output format. 'table' and 'json' are available.
+  -max-retry=0                Maximum retry count. (Default 0)
+  -timeout=10                 Connection timeout seconds. (Default 10)
+`
+
+	return strings.TrimSpace(helpText)
+}
+
+// Synopsis represents synopsis message for press command.
+func (c *InfoCommand) Synopsis() string {
+	return "Show current SwitchBot information"
 }
 
 func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
 	cfg := &infoCfg{}
 	flags := flag.NewFlagSet("info", flag.ContinueOnError)
-	flags.IntVar(&cfg.TimeoutSec, "timeout", 10, "")
 	flags.StringVar(&cfg.Format, "format", "table", "")
+	flags.IntVar(&cfg.MaxRetry, "max-retry", 0, "")
+	flags.IntVar(&cfg.TimeoutSec, "timeout", 10, "")
 	flags.Usage = func() {
 		c.UI.Info(c.Help())
 	}
@@ -82,25 +116,6 @@ func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
 
 	cfg.Addr = args[0]
 	return cfg, 0
-}
-
-// Help represents help message for press command.
-func (c *InfoCommand) Help() string {
-	helpText := `
-Usage: switchbot info [options] ADDRESS
-  Will retreive latest info from a SwitchBot specified by ADDRESS.
-
-Options:
-  -format=table               Output format. 'table' and 'json' are available.
-  -timeout=10                 Connection timeout seconds. (Default 10)
-`
-
-	return strings.TrimSpace(helpText)
-}
-
-// Synopsis represents synopsis message for press command.
-func (c *InfoCommand) Synopsis() string {
-	return "Show current SwitchBot information"
 }
 
 func printAsJson(i *switchbot.BotInfo) error {
@@ -142,4 +157,16 @@ func printAsTable(i *switchbot.BotInfo, writer io.Writer) {
 	table.SetNoWhiteSpace(true)
 	table.Append(data)
 	table.Render()
+}
+
+func (c *InfoCommand) runWithRetry(ctx context.Context, cfg *infoCfg) (*switchbot.BotInfo, error) {
+	var info *switchbot.BotInfo
+	f := func() error {
+		var err error
+		info, err = c.ConnectAndGetInfo(ctx, cfg)
+		return err
+	}
+	bo := backoff.NewExponentialBackOff()
+	bw := backoff.WithMaxRetries(bo, uint64(cfg.MaxRetry))
+	return info, backoff.Retry(f, bw)
 }
