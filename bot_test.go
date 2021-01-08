@@ -33,16 +33,6 @@ func (cl *MockBleClient) Subscribe(c *ble.Characteristic, ind bool, h ble.Notifi
 	return cl.subscribe(c, ind, h)
 }
 
-type MockProfile struct {
-	ble.Profile
-
-	mockCharactercteristic *ble.Characteristic
-}
-
-func (p *MockProfile) FindCharacteristic(c *ble.Characteristic) *ble.Characteristic {
-	return p.mockCharactercteristic
-}
-
 func newBot(addr string, cl *MockBleClient) *Bot {
 	b := NewBot("ADDR")
 	b.cl = cl

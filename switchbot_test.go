@@ -64,15 +64,15 @@ func TestScanNotFound(t *testing.T) {
 
 func TestScanFound(t *testing.T) {
 	advs := []MockAdvertisement{
-		*&MockAdvertisement{
+		{
 			addr:     "7F:8E:6B:F5:CA:91",
 			services: []ble.UUID{ble.MustParse("dc67b962-ccbe-11ea-87d0-0242ac130003")},
 		},
-		*&MockAdvertisement{
+		{
 			addr:     "9D:76:72:29:40:83",
 			services: []ble.UUID{ble.MustParse("cba20d00-224d-11e6-9fb8-0002a5d5c51b")},
 		},
-		*&MockAdvertisement{
+		{
 			addr:     "4D:24:A8:D9:43:6C",
 			services: []ble.UUID{ble.MustParse("cba20d00-224d-11e6-9fb8-0002a5d5c51b")},
 		},
