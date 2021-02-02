@@ -114,6 +114,30 @@ func (b *Bot) Off(wait bool) error {
 	return err
 }
 
+// Down triggers down function for the SwitchBot.
+func (b *Bot) Down(wait bool) error {
+	var cmd []byte
+	if b.encrypted() {
+		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x03}...)
+	} else {
+		cmd = []byte{0x57, 0x01, 0x03}
+	}
+	_, err := b.trigger(cmd, wait)
+	return err
+}
+
+// Up triggers down function for the SwitchBot.
+func (b *Bot) Up(wait bool) error {
+	var cmd []byte
+	if b.encrypted() {
+		cmd = append(append([]byte{0x57, 0x11}, b.pw...), []byte{0x04}...)
+	} else {
+		cmd = []byte{0x57, 0x01, 0x04}
+	}
+	_, err := b.trigger(cmd, wait)
+	return err
+}
+
 // GetInfo retrieves bot's settings.
 func (b *Bot) GetInfo() (*BotInfo, error) {
 	var cmd []byte
