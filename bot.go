@@ -206,7 +206,7 @@ func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 
 	res := <-b.subsque
 	if res[0] != byte(1) {
-		return res, errors.New("Failed to press")
+		return res, errors.New("Failed to send command to SwitchBot")
 	}
 	return res, nil
 }
