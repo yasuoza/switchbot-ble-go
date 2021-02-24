@@ -47,7 +47,9 @@ func (c *ScanCommand) parseArgs(args []string) (*scanCfg, int) {
 	flags.Usage = func() {
 		c.UI.Info(c.Help())
 	}
-	flags.Parse(args)
+	if err := flags.Parse(args); err != nil {
+		return cfg, 127
+	}
 	return cfg, 0
 }
 

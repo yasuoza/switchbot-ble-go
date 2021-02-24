@@ -84,7 +84,10 @@ func (c *PressCommand) parseArgs(args []string) (*pressCfg, int) {
 	flags.Usage = func() {
 		c.UI.Info(c.Help())
 	}
-	flags.Parse(args)
+
+	if err := flags.Parse(args); err != nil {
+		return cfg, 127
+	}
 
 	args = flags.Args()
 	if len(args) != 1 {

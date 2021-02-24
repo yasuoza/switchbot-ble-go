@@ -106,7 +106,10 @@ func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
 	flags.Usage = func() {
 		c.UI.Info(c.Help())
 	}
-	flags.Parse(args)
+
+	if err := flags.Parse(args); err != nil {
+		return cfg, 127
+	}
 
 	args = flags.Args()
 	if len(args) != 1 || (cfg.Format != "table" && cfg.Format != "json") {
