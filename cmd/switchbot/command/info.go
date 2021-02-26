@@ -35,22 +35,24 @@ func (c *InfoCommand) Run(args []string) int {
 		return parseStatus
 	}
 
-	info, err := c.runWithRetry(context.Background(), cfg)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to retreive info from SwitchBot: %s", err.Error())
-		c.UI.Error(msg)
-		return 1
+	var errTmpl string
+	if cfg.Format == "json" {
+		errTmpl = `{"error": "Failed to retreive info from SwitchBot: %s"}`
+	} else {
+		errTmpl = "Failed to retreive info from SwitchBot: %s"
 	}
 
+	info, err := c.runWithRetry(context.Background(), cfg)
 	if err != nil {
-		c.UI.Error("Failed to retreive info from SwitchBot")
+		msg := fmt.Sprintf(errTmpl, err.Error())
+		c.UI.Error(msg)
 		return 1
 	}
 
 	if cfg.Format == "json" {
 		err := printAsJson(info)
 		if err != nil {
-			msg := fmt.Sprintf(`{"error": "Failed to retreive info from SwitchBot: %s"}`, err.Error())
+			msg := fmt.Sprintf(errTmpl, err.Error())
 			c.UI.Error(msg)
 			return 1
 		}
