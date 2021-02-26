@@ -50,7 +50,7 @@ func (c *InfoCommand) Run(args []string) int {
 	if cfg.Format == "json" {
 		err := printAsJson(info)
 		if err != nil {
-			msg := fmt.Sprintf("Failed to retreive info from SwitchBot: %s", err.Error())
+			msg := fmt.Sprintf(`{"error": "Failed to retreive info from SwitchBot: %s"}`, err.Error())
 			c.UI.Error(msg)
 			return 1
 		}
