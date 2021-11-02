@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "timezone": "Asia/Tokyo",
+   "labels": ["renovate"],
+  "prConcurrentLimit": 5,
+  "enabledManagers": [
+    "github-actions",
+    "gomod"
+  ],
+  "constraints": {
+    "go": "1.17"
+  },
+  "pin": {
+    "automerge": true
+  },
+  "minor": {
+    "automerge": true
+  },
+  "patch": {
+    "automerge": true
+  },
+  // FYI: https://docs.renovatebot.com/golang/
+  "postUpdateOptions": [
+    "gomodTidy"
+  ]
+}
