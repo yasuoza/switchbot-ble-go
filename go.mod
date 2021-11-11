@@ -6,7 +6,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/mitchellh/cli v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
-	tinygo.org/x/bluetooth v0.3.0
+	tinygo.org/x/bluetooth v0.3.1-0.20211105182402-bd75a426949c
 )
 
 require (
@@ -31,7 +31,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.0 // indirect
-	github.com/muka/go-bluetooth v0.0.0-20200619025933-f6113f7141c5 // indirect
+	github.com/muka/go-bluetooth v0.0.0-20210812063148-b6c83362e27d // indirect
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
