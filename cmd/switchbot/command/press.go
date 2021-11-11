@@ -9,7 +9,7 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/mitchellh/cli"
-	"github.com/yasuoza/switchbot"
+	"github.com/yasuoza/switchbot-ble-go/v2/pkg/switchbot"
 )
 
 // PressCommand reperesents press command.

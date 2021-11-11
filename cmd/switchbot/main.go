@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
-	"github.com/yasuoza/switchbot/cmd/switchbot/command"
+	"github.com/yasuoza/switchbot-ble-go/v2/cmd/switchbot/command"
 )
 
 var Version = "current"

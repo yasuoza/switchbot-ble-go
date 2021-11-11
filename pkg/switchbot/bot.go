@@ -6,7 +6,7 @@ import (
 	"hash/crc32"
 	"strings"
 
-	"github.com/JuulLabs-OSS/ble"
+	"tinygo.org/x/bluetooth"
 )
 
 const (
@@ -18,7 +18,11 @@ const (
 type Bot struct {
 	Addr string
 
-	cl ble.Client
+	dev *bluetooth.Device
+
+	subschar *bluetooth.DeviceCharacteristic
+	cmdchar  *bluetooth.DeviceCharacteristic
+
 	pw []byte
 
 	subsque    chan []byte
@@ -45,34 +49,19 @@ func (b *Bot) SetPassword(pw string) {
 
 // Subscribe subscribes to bot and waiting notification from SwitchBot.
 func (b *Bot) Subscribe() error {
-	p, err := b.cl.DiscoverProfile(true)
+	err := b.subschar.EnableNotifications(func(info []byte) {
+		b.subsque <- info
+	})
 	if err != nil {
 		return err
 	}
-	c := p.FindCharacteristic(
-		ble.NewCharacteristic(ble.MustParse("cba20003-224d-11e6-9fb8-0002a5d5c51b")),
-	)
-	if c == nil {
-		return errors.New("Could not subscribe to SwitchBot")
-	}
-	if err := b.cl.Subscribe(c, false, func(req []byte) {
-		b.subsque <- req
-	}); err != nil {
-		return err
-	}
+	b.subscribed = true
 	return nil
 }
 
 // Disconnect  disconnects current SwitchBot connection.
 func (b *Bot) Disconnect() error {
-	clearErr := b.cl.ClearSubscriptions()
-	cancelErr := b.cl.CancelConnection()
-
-	if clearErr != nil || cancelErr != nil {
-		return errors.New("failed to disconnect")
-	}
-
-	return nil
+	return b.dev.Disconnect()
 }
 
 // Press triggers press function for the SwitchBot.
@@ -192,14 +181,11 @@ func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 		}
 	}
 
-	c := ble.NewCharacteristic(ble.MustParse(characteristics))
-	c.ValueHandle = handle
-	if err := b.cl.WriteCharacteristic(c, cmd, false); err != nil {
+	_, err := b.cmdchar.WriteWithoutResponse(cmd)
+	if err != nil {
 		return []byte{0}, err
 	}
 
-	// If waitResp is false, We don't need to wait response.
-	// Return nil as succeeded response.
 	if !wait {
 		return []byte{1}, nil
 	}
@@ -208,5 +194,6 @@ func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 	if res[0] != byte(1) {
 		return res, errors.New("Failed to send command to SwitchBot")
 	}
+
 	return res, nil
 }

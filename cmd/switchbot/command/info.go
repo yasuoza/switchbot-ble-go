@@ -12,7 +12,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/mitchellh/cli"
 	"github.com/olekukonko/tablewriter"
-	"github.com/yasuoza/switchbot"
+	"github.com/yasuoza/switchbot-ble-go/v2/pkg/switchbot"
 )
 
 // InfoCommand reperesents press command.
