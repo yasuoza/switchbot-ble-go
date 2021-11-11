@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Get dependencies
-        run: go mod download
+        run: make install
 
       - name: lint
         run: make lint
