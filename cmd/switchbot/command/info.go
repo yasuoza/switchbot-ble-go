@@ -50,7 +50,7 @@ func (c *InfoCommand) Run(args []string) int {
 	}
 
 	if cfg.Format == "json" {
-		err := printAsJson(info)
+		err := printAsJSON(info)
 		if err != nil {
 			msg := fmt.Sprintf(errTmpl, err.Error())
 			c.UI.Error(msg)
@@ -123,7 +123,7 @@ func (c *InfoCommand) parseArgs(args []string) (*infoCfg, int) {
 	return cfg, 0
 }
 
-func printAsJson(i *switchbot.BotInfo) error {
+func printAsJSON(i *switchbot.BotInfo) error {
 	data, err := json.MarshalIndent(i, "", "  ")
 	if err != nil {
 		return err

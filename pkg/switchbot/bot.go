@@ -9,11 +9,6 @@ import (
 	"tinygo.org/x/bluetooth"
 )
 
-const (
-	characteristics = "cba20002-224d-11e6-9fb8-0002a5d5c51b"
-	handle          = 0x16
-)
-
 // Bot represents SwitchBot device.
 type Bot struct {
 	Addr string
@@ -162,7 +157,6 @@ func (b *Bot) GetTimers(cnt int) ([]*Timer, error) {
 		t := ParseTimerBytes(r)
 		ret = append(ret, t)
 	}
-
 	return ret, nil
 }
 
@@ -192,7 +186,7 @@ func (b *Bot) trigger(cmd []byte, wait bool) ([]byte, error) {
 
 	res := <-b.subsque
 	if res[0] != byte(1) {
-		return res, errors.New("Failed to send command to SwitchBot")
+		return res, errors.New("failed to send command to SwitchBot")
 	}
 
 	return res, nil
