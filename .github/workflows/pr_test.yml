@@ -22,8 +22,8 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
-      - name: go vet
-        run: go vet ./...
+      - name: lint
+        run: make lint
 
       - name: go test
-        run: go test -v
+        run: make test
