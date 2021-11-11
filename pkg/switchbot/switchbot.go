@@ -13,8 +13,12 @@ var (
 	subscribeUUID, _ = bluetooth.ParseUUID("cba20003-224d-11e6-9fb8-0002a5d5c51b")
 	commandUUID, _   = bluetooth.ParseUUID("cba20002-224d-11e6-9fb8-0002a5d5c51b")
 
-	adapter = bluetooth.DefaultAdapter
+	adapter *bluetooth.Adapter
 )
+
+func init() {
+	adapter = bluetooth.DefaultAdapter
+}
 
 // Scan scans nearby SwitchBots.
 // Callback function will be executed with MAC address once a SwitchBot is found.

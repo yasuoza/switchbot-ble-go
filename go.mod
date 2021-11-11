@@ -3,11 +3,9 @@ module github.com/yasuoza/switchbot-ble-go/v2
 go 1.17
 
 require (
-	github.com/JuulLabs-OSS/ble v0.0.0-20200716215611-d4fcc9d598bb
 	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/mitchellh/cli v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/yasuoza/switchbot v0.3.3
 	tinygo.org/x/bluetooth v0.3.0
 )
 
@@ -31,12 +29,9 @@ require (
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
-	github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.0 // indirect
 	github.com/muka/go-bluetooth v0.0.0-20200619025933-f6113f7141c5 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect

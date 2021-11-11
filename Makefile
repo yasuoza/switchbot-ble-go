@@ -7,7 +7,7 @@ switchbot: *.go cmd/switchbot/*.go go.*
 	go build -trimpath -ldflags "-s -w -X main.Version=${GIT_VER}" -o switchbot cmd/switchbot/main.go
 
 test:
-	go test -v .
+	go test -v ./...
 
 # https://goreleaser.com/install/#running-with-docker
 goreleaser/build:
