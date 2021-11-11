@@ -5,7 +5,7 @@ Unofficial [SwitchBot](https://www.switch-bot.com/) client for Go.
 ## Commandline
 
 ```
-$ go get github.com/yasuoza/switchbot
+$ go get github.com/yasuoza/switchbot-ble-go/v2/pkg/switchbot
 ```
 
 ```
