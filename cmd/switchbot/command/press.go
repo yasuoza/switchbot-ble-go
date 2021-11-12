@@ -102,7 +102,7 @@ func (c *PressCommand) runWithRetry(ctx context.Context, cfg *pressCfg) error {
 	f := func() error {
 		return c.ConnectAndPress(ctx, cfg)
 	}
-	bo := backoff.NewExponentialBackOff()
+	bo := backoff.NewConstantBackOff(1 * time.Second)
 	bw := backoff.WithMaxRetries(bo, uint64(cfg.MaxRetry))
 	return backoff.Retry(f, bw)
 }
