@@ -1,12 +1,16 @@
 GIT_VER := $(shell git describe --tags)
-export GO111MODULE := on
+
+GO111MODULE := on
+
+GO_FILES := $(shell find . -type f -name '*.go' -print)
 
 .PHONY: install
 install:
 	go install honnef.co/go/tools/cmd/staticcheck@2021.1.1
 	go mod download
 
-build: pkg/switchbot/**/*.go cmd/switchbot/**/*.go go.*
+.PHONY: build
+build: $(GO_FILES)
 	go build -trimpath -ldflags "-s -w -X main.Version=${GIT_VER}" -o tmp/switchbot cmd/switchbot/main.go
 
 .PHONY: clean
