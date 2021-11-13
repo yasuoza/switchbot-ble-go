@@ -6,7 +6,6 @@ install:
 	go install honnef.co/go/tools/cmd/staticcheck@2021.1.1
 	go mod download
 
-.PHONY: build
 build: pkg/switchbot/**/*.go cmd/switchbot/**/*.go go.*
 	go build -trimpath -ldflags "-s -w -X main.Version=${GIT_VER}" -o tmp/switchbot cmd/switchbot/main.go
 
