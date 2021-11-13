@@ -26,6 +26,12 @@ func main() {
 		"press": func() (cli.Command, error) {
 			return &command.PressCommand{UI: ui}, nil
 		},
+		"up": func() (cli.Command, error) {
+			return &command.UpCommand{UI: ui}, nil
+		},
+		"down": func() (cli.Command, error) {
+			return &command.DownCommand{UI: ui}, nil
+		},
 		"info": func() (cli.Command, error) {
 			return &command.InfoCommand{UI: ui}, nil
 		},
