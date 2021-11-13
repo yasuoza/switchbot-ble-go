@@ -26,5 +26,8 @@ jobs:
       - name: lint
         run: make lint
 
-      - name: go test
+      - name: test
         run: make test
+
+      - name: build
+        run: make build
