@@ -6,7 +6,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/mitchellh/cli v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
-	tinygo.org/x/bluetooth v0.3.1-0.20211105182402-bd75a426949c
+	tinygo.org/x/bluetooth v0.4.0
 )
 
 require (
