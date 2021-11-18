@@ -35,7 +35,7 @@ switchbot press -max-retry '11:11:11:11:11:11'
 ```go
 
 import (
-  "github.com/yasuoza/switchbot"
+  "github.com/yasuoza/switchbot-ble-go/v2/pkg/switchbot"
 )
 
 func main() {
