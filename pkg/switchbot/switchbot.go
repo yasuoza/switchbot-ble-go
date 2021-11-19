@@ -32,10 +32,13 @@ func Scan(ctx context.Context, timeout time.Duration, callback func(addr string)
 	defer cancel()
 
 	var err error
+	var founds = make([]string, 0)
 	go func() {
 		err = adapter.Scan(func(a *bluetooth.Adapter, res bluetooth.ScanResult) {
-			if res.LocalName() == "WoHand" {
-				callback(res.Address.String())
+			addr := res.Address.String()
+			if res.LocalName() == "WoHand" && newlyFoundTarget(founds, addr) {
+				founds = append(founds, addr)
+				callback(addr)
 			}
 		})
 	}()
@@ -151,4 +154,13 @@ func scanError(err error) error {
 	default:
 		return err
 	}
+}
+
+func newlyFoundTarget(arr []string, target string) bool {
+	for _, el := range arr {
+		if el == target {
+			return false
+		}
+	}
+	return true
 }
