@@ -19,9 +19,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Get dependencies
-        run: make install
-
       - name: lint
         run: make lint
 
