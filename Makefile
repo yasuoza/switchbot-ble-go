@@ -4,11 +4,6 @@ GO111MODULE := on
 
 GO_FILES := $(shell find . -type f -name '*.go' -print)
 
-.PHONY: install
-install:
-	go install honnef.co/go/tools/cmd/staticcheck@2021.1.1
-	go mod download
-
 .PHONY: build
 build: $(GO_FILES)
 	go build -trimpath -ldflags "-s -w -X main.Version=${GIT_VER}" -o tmp/switchbot cmd/switchbot/main.go
@@ -19,7 +14,7 @@ clean:
 
 .PHONY: lint
 lint:
-	staticcheck ./...
+	go run honnef.co/go/tools/cmd/staticcheck@2021.1.1 ./...
 
 .PHONY: test
 test:
