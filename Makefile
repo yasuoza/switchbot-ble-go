@@ -14,7 +14,7 @@ clean:
 
 .PHONY: lint
 lint:
-	go run honnef.co/go/tools/cmd/staticcheck@2021.1.1 ./...
+	go run honnef.co/go/tools/cmd/staticcheck@2021.1.2 -f stylish ./...
 
 .PHONY: test
 test:
