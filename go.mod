@@ -6,10 +6,12 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/mitchellh/cli v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
+	honnef.co/go/tools v0.2.2
 	tinygo.org/x/bluetooth v0.4.0
 )
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/JuulLabs-OSS/cbgo v0.0.2 // indirect
 	github.com/Masterminds/goutils v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
@@ -35,5 +37,8 @@ require (
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6 // indirect
+	golang.org/x/mod v0.3.0 // indirect
+	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
+	golang.org/x/tools v0.1.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )

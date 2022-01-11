@@ -13,8 +13,11 @@ clean:
 	rm -f switchbot
 
 .PHONY: lint
-lint:
-	go run honnef.co/go/tools/cmd/staticcheck@2021.1.2 -f stylish ./...
+lint: $(STATICCHECK)
+	staticcheck -f stylish ./...
+
+$(STATICCHECK):
+	cd tools && go install honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: test
 test:
