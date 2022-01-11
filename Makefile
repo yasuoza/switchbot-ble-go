@@ -18,7 +18,7 @@ clean:
 
 .PHONY: lint
 lint: $(STATICCHECK)
-	staticcheck -f stylish ./...
+	$(STATICCHECK) -f stylish ./...
 
 $(STATICCHECK):
 	cd tools && go install honnef.co/go/tools/cmd/staticcheck
