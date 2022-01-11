@@ -1,6 +1,10 @@
+export GOBIN ?= $(shell pwd)/bin
+
 GIT_VER := $(shell git describe --tags)
 
 GO111MODULE := on
+
+STATICCHECK = $(GOBIN)/staticcheck
 
 GO_FILES := $(shell find . -type f -name '*.go' -print)
 
