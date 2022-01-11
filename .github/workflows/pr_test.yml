@@ -19,6 +19,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: tools
+        run: make tools
+
       - name: lint
         run: make lint
 

@@ -1,12 +1,12 @@
-export GOBIN ?= $(shell pwd)/bin
-
 GIT_VER := $(shell git describe --tags)
 
 GO111MODULE := on
 
-STATICCHECK = $(GOBIN)/staticcheck
-
 GO_FILES := $(shell find . -type f -name '*.go' -print)
+
+.PHONY: tools
+tools:
+	cd tools && cat main.go | awk '/_/ {print $$2}' | xargs -tI {} go install {}
 
 .PHONY: build
 build: $(GO_FILES)
@@ -17,11 +17,8 @@ clean:
 	rm -f switchbot
 
 .PHONY: lint
-lint: $(STATICCHECK)
-	$(STATICCHECK) -f stylish ./...
-
-$(STATICCHECK):
-	cd tools && go install honnef.co/go/tools/cmd/staticcheck
+lint:
+	staticcheck -f stylish ./...
 
 .PHONY: test
 test:
