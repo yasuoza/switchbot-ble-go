@@ -3,7 +3,7 @@ module github.com/yasuoza/switchbot-ble-go/v2
 go 1.17
 
 require (
-	github.com/cenkalti/backoff/v4 v4.1.2
+	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/mitchellh/cli v1.1.2
 	github.com/olekukonko/tablewriter v0.0.5
 	tinygo.org/x/bluetooth v0.4.0
