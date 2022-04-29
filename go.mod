@@ -6,7 +6,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/mitchellh/cli v1.1.3
 	github.com/olekukonko/tablewriter v0.0.5
-	tinygo.org/x/bluetooth v0.4.0
+	tinygo.org/x/bluetooth v0.5.0
 )
 
 require (
@@ -37,5 +37,5 @@ require (
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
+	golang.org/x/sys v0.0.0-20210423082822-04245dca01da // indirect
 )
