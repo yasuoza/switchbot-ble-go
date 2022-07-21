@@ -1,6 +1,6 @@
 module github.com/yasuoza/switchbot-ble-go/v2/tools
 
-go 1.17
+go 1.18
 
 require honnef.co/go/tools v0.3.2
 
