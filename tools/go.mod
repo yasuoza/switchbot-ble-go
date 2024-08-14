@@ -2,7 +2,7 @@ module github.com/yasuoza/switchbot-ble-go/v2/tools
 
 go 1.19
 
-require honnef.co/go/tools v0.3.3
+require honnef.co/go/tools v0.5.1
 
 require (
 	github.com/BurntSushi/toml v0.4.1 // indirect
