@@ -33,7 +33,7 @@ require (
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/saltosystems/winrt-go v0.0.0-20220826130236-ddc8202da421 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/sirupsen/logrus v1.9.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/tinygo-org/cbgo v0.0.4 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
